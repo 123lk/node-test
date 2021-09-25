@@ -1,11 +1,28 @@
-const express = require('express')
-const path = require('path')
-const PORT = process.env.PORT || 5000
+const express = require('express');
+const PORT = process.env.PORT || 5000;
+const app = express();
 
-express()
-  .use(express.static(path.join(__dirname, 'public')))
-  .set('views', path.join(__dirname, 'views'))
-  .set('view engine', 'ejs')
-  .get('/', (req, res) => res.send('hello'))
-  .get('/test', (req, res) => res.send('hello testy test'))
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`))
+  function checkBoardExists(obj) {
+    return obj.hasOwnProperty('board');
+  }
+
+  function sayHello() {
+    return 'hello';
+  }
+
+  app.get('/', async (req, res, next) => {
+    try {
+      let boardExists = await checkBoardExists(req.query);
+      let greeting = await sayHello();
+      if (!boardExists) {
+        res.status(400).end();
+      } else {
+        res.send(greeting);
+      }
+    }
+    catch(error) {
+      next(error);
+    }
+  });
+
+  app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
